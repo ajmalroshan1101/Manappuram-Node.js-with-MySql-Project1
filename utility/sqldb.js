@@ -4,7 +4,7 @@ const connection = sql.createPool({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'erp'
+    database: 'db_2'
 });
 
 module.exports = connection;
