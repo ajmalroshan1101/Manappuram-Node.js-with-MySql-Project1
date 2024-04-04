@@ -189,35 +189,35 @@ const common = {
 
         console.log(username, password);
 
-        // function generateMD5(password) {
-        //     return crypto.createHash("md5").update(password).digest("hex");
-        // }
+        function generateMD5(password) {
+            return crypto.createHash("md5").update(password).digest("hex");
+        }
 
-        // const md5Hash = generateMD5(password);
+        const md5Hash = generateMD5(password);
 
-        // const mySql = `SELECT *
-        // FROM tbl_login
-        // LEFT JOIN tbl_employee ON tbl_employee.emp_code = tbl_login.emp_code
-        // LEFT JOIN tbl_department ON tbl_department.department_id = tbl_login.department_type
-        // LEFT JOIN tbl_branch ON tbl_branch.branch_id = tbl_login.branch_id
-        // LEFT JOIN tbl_role ON tbl_role.role_id = tbl_login.emp_role
-        // WHERE tbl_login.emp_code = ? AND tbl_login.password = ?`;
+        const mySql = `SELECT *
+        FROM tbl_login
+        LEFT JOIN tbl_employee ON tbl_employee.emp_code = tbl_login.emp_code
+        LEFT JOIN tbl_department ON tbl_department.department_id = tbl_login.department_type
+        LEFT JOIN tbl_branch ON tbl_branch.branch_id = tbl_login.branch_id
+        LEFT JOIN tbl_role ON tbl_role.role_id = tbl_login.emp_role
+        WHERE tbl_login.emp_code = ? AND tbl_login.password = ?`;
 
-        // connection.query(mySql, [username, md5Hash], (error, result) => {
-        //     if (error) {
-        //         console.log("Error:", error);
-        //         return res.json({ success: false, message: "Database error occurred" });
-        //     }
+        connection.query(mySql, [username, md5Hash], (error, result) => {
+            if (error) {
+                console.log("Error:", error);
+                return res.json({ success: false, message: "Database error occurred" });
+            }
 
-        //     if (result.length === 0) {
-        //         return res.json({
-        //             success: false,
-        //             message: "Invalid username or password",
-        //         });
-        //     }
+            if (result.length === 0) {
+                return res.json({
+                    success: false,
+                    message: "Invalid username or password",
+                });
+            }
 
-        //     return res.json({ success: true, data: result });
-        // });
+            return res.json({ success: true, data: result });
+        });
     },
     searchstockbybranch: (req, res) => {
         try {
