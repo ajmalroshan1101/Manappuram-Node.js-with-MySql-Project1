@@ -187,6 +187,8 @@ const common = {
     finduser: (req, res) => {
         const { username, password } = req.body;
 
+        console.log(username, password);
+
         function generateMD5(password) {
             return crypto.createHash("md5").update(password).digest("hex");
         }
