@@ -216,6 +216,7 @@ const common = {
                 });
             }
 
+            console.log(result);
             return res.json({ success: true, data: result });
         });
     },
