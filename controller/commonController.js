@@ -195,6 +195,8 @@ const common = {
 
         const md5Hash = generateMD5(password);
 
+        console.log(md5Hash);
+
         const mySql = `SELECT *
         FROM tbl_login
         LEFT JOIN tbl_employee ON tbl_employee.emp_code = tbl_login.emp_code
