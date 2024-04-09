@@ -29,8 +29,10 @@ const common = {
 
         console.log(date1, date2);
 
-        const sqlQuery =
-            "SELECT * FROM tbl_customer WHERE cust_date BETWEEN ? AND ?";
+        const sqlQuery = `SELECT tbl_customer.cust_name,tbl_customer.cust_date,tbl_customer_details.cust_bill_address1,tbl_customer_details.cust_bill_address2,tbl_customer_details.cust_bill_pin_code,tbl_customer_details.cust_gstin,tbl_customer_details.cust_pan,tbl_customer_details.cust_phone, tbl_customer_details.cust_state FROM tbl_customer 
+        LEFT JOIN tbl_customer_details ON tbl_customer_details.customer_id = tbl_customer.cust_id 
+        WHERE cust_date BETWEEN ? AND ?;`
+
 
         connection.query(sqlQuery, [date1, date2], (error, result) => {
             if (error) {
@@ -39,24 +41,25 @@ const common = {
             }
 
             //Extract the customerid from the result array of tbl_customer
-            const customerIds = result.map((customer) => customer.cust_id);
+            // const customerIds = result.map((customer) => customer.cust_id);
 
             //This is to find other customer details
-            const otherSql =
-                "SELECT * FROM tbl_customer_details WHERE customer_id IN (?)";
+            // const otherSql =
+            // "SELECT * FROM tbl_customer_details WHERE customer_id IN (?)";
 
-            connection.query(otherSql, [customerIds], (otherError, otherResult) => {
-                if (otherError) {
-                    console.error("Error executing other query:", otherError);
-                    return res.status(500).json({ error: "Error executing other query" });
-                }
+            // connection.query(otherSql, [customerIds], (otherError, otherResult) => {
+            //     if (otherError) {
+            //         console.error("Error executing other query:", otherError);
+            //         return res.status(500).json({ error: "Error executing other query" });
+            //     }
 
-                const combinedResults = {
-                    result: result,
-                    otherResult: otherResult,
-                };
-                res.status(200).json(combinedResults);
-            });
+            // const combinedResults = {
+            //     result: result,
+            //     otherResult: otherResult,
+            // };
+            // });
+            console.log(result);
+            res.status(200).json(result);
         });
     },
     // searchoder: (req, res) => {
@@ -167,7 +170,7 @@ const common = {
 
         console.log(date1, date2);
 
-        const mySql = `SELECT *  
+        const mySql = `SELECT tbl_order_creation.order_no , tbl_customer.cust_name , tbl_customer_details.cust_bill_address1 , tbl_style.variant_name , tbl_customer_details.cust_bill_pin_code , tbl_hm_order_details.hm_gross_weight , tbl_order_creation.shipping_date , tbl_hm_order_details.hm_net_wt 
         FROM tbl_order_creation  
         LEFT JOIN tbl_hm_order_details ON tbl_order_creation.order_id = tbl_hm_order_details.hm_order_id 
         LEFT JOIN tbl_style ON tbl_style.style_id = tbl_hm_order_details.hm_style_code
@@ -345,66 +348,21 @@ const common = {
             console.log(data);
 
             connection.query(mySql, [data], (err, result) => {
-                    if (err) {
+                if (err) {
 
-                        console.log("Error:", error);
-                        return res.json({
-                            success: false,
-                            message: "Database error occurred",
-                        });
-                    }
+                    console.log("Error:", error);
+                    return res.json({
+                        success: false,
+                        message: "Database error occurred",
+                    });
+                }
 
-                    console.log(result);
-                    res.json(result)
+                console.log(result);
+                res.json(result)
 
-                })
-                // if (data === 'HM Cutting') {
-
-            //     console.log(2);
-            // } else if (data === 'HM Polishing') {
-
-            //     console.log(3);
-            // } else if (data === 'Internal QC') {
-
-            //     console.log(4);
-            // } else if (data === 'External QC') {
-
-            //     console.log(5);
-            // } else if (data === 'HM Barcoding') {
-
-            //     console.log(6);
-            // } else if (data === 'HM Finished Goods') {
-
-            //     console.log(7);
-            // } else if (data === 'HM Refining') {
-
-            //     console.log(8);
-            // } else if (data === 'HM Repair') {
-            //     console.log(9);
-
-            // } else {
-            //     console.log('over');
-            // }
+            })
 
 
-            // if (true) {
-            //     const mySql = `select * from hm_sub_department
-            //                 LEFT JOIN hm_department ON hm_department.hm_department_id = hm_sub_department.hm_department_id
-            //                 WHERE  hm_sub_department.hm_department_id = ?`;
-
-            //     connection.query(mySql, [id], (err, result) => {
-            //         if (err) {
-            //             console.log("Error:", error);
-            //             return res.json({
-            //                 success: false,
-            //                 message: "Database error occurred",
-            //             });
-            //         }
-            //         res.json(result);
-            //     });
-            // } else {
-            //     res.json({ message: "more than 3" });
-            // }
         } catch (error) {}
     },
 
@@ -442,7 +400,6 @@ const common = {
                         message: "Database error occurred",
                     });
                 }
-                console.log('----------------------------date-------------------------');
                 console.log(result);
                 res.json(result)
             })
@@ -539,8 +496,6 @@ const common = {
     },
 
     employeweight: (req, res) => {
-
-        console.log('hello world');
         const mySql = `SELECT 
         tbl_branch.branch_name AS branch,
         tbl_employee.emp_name AS employe_name,
@@ -562,6 +517,9 @@ const common = {
             }
             res.json(result);
         })
+    },
+    demo: (req, res) => {
+        res.json('backend is runnig');
     }
 };
 

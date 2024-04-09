@@ -21,6 +21,8 @@ app.get('/', (req, res) => {
 });
 
 
+
+
 app.use('/common', commonRoute);
 
 app.listen(5000, () => {
