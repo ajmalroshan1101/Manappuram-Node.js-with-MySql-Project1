@@ -120,7 +120,7 @@ const common = {
             }
 
             // console.log('hello');
-            console.log(result);
+            // console.log(result);
 
             return res.json({ success: true, data: result });
         });
@@ -357,41 +357,106 @@ const common = {
         try {
 
 
-            const { FROM, TO, branch, department } = req.body;
+            const { branch, department } = req.body;
 
-            mySql = `SELECT tbl_branch.branch_name AS branch,
-            tbl_order_creation.order_no AS order_number,
-            tbl_production_type.production_type_name AS department,
-            tbl_order_creation.created_date AS order_date,
-            tbl_karat.varient_name AS karat_variant,
-            tbl_hm_order_details.hm_quantity AS quantity,
-            tbl_hm_order_details.hm_net_wt AS net_weight,
-            tbl_hm_order_details.hm_quantity * tbl_hm_order_details.hm_net_wt AS weight,
-            tbl_stone.variant_name AS stone_type,
-            tbl_hm_order_details.stone_weight AS stone_weight
-        
-        
-        FROM tbl_order_creation
-        LEFT JOIN tbl_branch ON tbl_branch.branch_id = tbl_order_creation.branch_id
-        LEFT JOIN tbl_hm_order_details ON tbl_hm_order_details.hm_order_id = tbl_order_creation.order_id
-        LEFT JOIN tbl_production_type ON tbl_production_type.production_type_id = tbl_hm_order_details.hm_category_type
-        LEFT JOIN tbl_karat ON tbl_karat.karat_id = tbl_hm_order_details.hm_purity_id
-        LEFT JOIN tbl_stone ON tbl_stone.stone_id = tbl_hm_order_details.hm_stone_id
-        
-        WHERE tbl_branch.branch_name = ? AND tbl_production_type.production_type_name =  ?
-        `
+            if (department === 'HAND MADE') {
 
-            connection.query(mySql, [FROM, TO, branch, department], (err, result) => {
-                if (err) {
-                    console.log("Error:", error);
-                    return res.json({
-                        success: false,
-                        message: "Database error occurred",
-                    });
-                }
-                log(result)
-                res.json(result);
-            })
+                console.log('inside');
+                mySqlhand = ` SELECT 
+                tbl_branch.branch_name AS branch,
+                hm_department_live_status.hm_metal_weight AS weight_1,
+                SUM(tbl_metal_assign_to_employee.assigned_metal_weight) AS assigned_weight_employee,
+                tbl_karat.karat AS purity
+                
+                        FROM tbl_metal_assign_to_employee
+                                
+                        LEFT JOIN hm_department_live_status on hm_department_live_status.production_type_id = 2
+                        
+                        LEFT JOIN tbl_karat ON tbl_karat.karat_id =hm_department_live_status.purity_id
+                  
+                        LEFT JOIN tbl_branch ON tbl_branch.branch_id = hm_department_live_status.branch_id
+                        
+                       WHERE tbl_branch.branch_name = ?`
+
+
+                connection.query(mySqlhand, [branch], (err, result) => {
+                    if (err) {
+                        console.log("Error:", error);
+                        return res.json({
+                            success: false,
+                            message: "Database error occurred",
+                        });
+                    }
+                    console.log(result)
+                    res.json({ dep: 'hand', result });
+                })
+
+            } else if (department === 'CASTING') {
+
+                const mysqlcas = `SELECT 
+
+                tbl_branch.branch_name AS branch,
+                tbl_casting_dept.casting_dept_name AS department,
+                tbl_metal_type.type_name AS metal_name,
+                tbl_karat.karat ,
+                tbl_temp_casting_gold_stock.temp_gold_stock_weight AS l_metal,
+                tbl_temp_casting_gold_stock.item_weight
+                
+                FROM tbl_temp_casting_gold_stock
+                
+                LEFT JOIN tbl_branch ON tbl_branch.branch_id = tbl_temp_casting_gold_stock.branch_id
+                LEFT JOIN tbl_casting_dept ON tbl_casting_dept.casting_dept_id = tbl_temp_casting_gold_stock.casting_dept_id
+                LEFT JOIN tbl_metal_type ON tbl_metal_type.type_id = tbl_temp_casting_gold_stock.metal_type_id
+                LEFT JOIN tbl_karat ON tbl_karat.karat_id = tbl_temp_casting_gold_stock.purity_id
+                WHERE tbl_temp_casting_gold_stock.metal_type_id = 1 AND tbl_branch.branch_name = ?`
+
+                connection.query(mysqlcas, [branch], (err, result) => {
+                    if (err) {
+                        console.log("Error:", error);
+                        return res.json({
+                            success: false,
+                            message: "Database error occurred",
+                        });
+                    }
+                    console.log(result)
+                    res.json({ dep: 'cast', result });
+                })
+
+            }
+
+            //     mySql = `SELECT tbl_branch.branch_name AS branch,
+            //     tbl_order_creation.order_no AS order_number,
+            //     tbl_production_type.production_type_name AS department,
+            //     tbl_order_creation.created_date AS order_date,
+            //     tbl_karat.varient_name AS karat_variant,
+            //     tbl_hm_order_details.hm_quantity AS quantity,
+            //     tbl_hm_order_details.hm_net_wt AS net_weight,
+            //     tbl_hm_order_details.hm_quantity * tbl_hm_order_details.hm_net_wt AS weight,
+            //     tbl_stone.variant_name AS stone_type,
+            //     tbl_hm_order_details.stone_weight AS stone_weight
+
+
+            // FROM tbl_order_creation
+            // LEFT JOIN tbl_branch ON tbl_branch.branch_id = tbl_order_creation.branch_id
+            // LEFT JOIN tbl_hm_order_details ON tbl_hm_order_details.hm_order_id = tbl_order_creation.order_id
+            // LEFT JOIN tbl_production_type ON tbl_production_type.production_type_id = tbl_hm_order_details.hm_category_type
+            // LEFT JOIN tbl_karat ON tbl_karat.karat_id = tbl_hm_order_details.hm_purity_id
+            // LEFT JOIN tbl_stone ON tbl_stone.stone_id = tbl_hm_order_details.hm_stone_id
+
+            // WHERE tbl_branch.branch_name = ? AND tbl_production_type.production_type_name =  ?
+            // `
+
+            // connection.query(mySql, [FROM, TO, branch, department], (err, result) => {
+            //     if (err) {
+            //         console.log("Error:", error);
+            //         return res.json({
+            //             success: false,
+            //             message: "Database error occurred",
+            //         });
+            //     }
+            //     log(result)
+            //     res.json(result);
+            // })
         } catch (error) {
 
         }

@@ -4,17 +4,17 @@ const port = 3306
 
 const connection = sql.createPool({
 
-    // host: 'localhost',
-    // user: 'root',
-    // password: '',
-    // database: 'testss'
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'test'
 
-    host: 'database-1.cnqsccui2i3c.eu-north-1.rds.amazonaws.com',
-    user: 'admin',
-    password: 'DkcSg3ZGtvd6GUmR7lCm',
-    database: 'demo',
+    // host: 'database-1.cnqsccui2i3c.eu-north-1.rds.amazonaws.com',
+    // user: 'admin',
+    // password: 'DkcSg3ZGtvd6GUmR7lCm',
+    // database: 'demo',
 
-    port: parseInt(port, 10)
+    // port: parseInt(port, 10)
 
 
 });
