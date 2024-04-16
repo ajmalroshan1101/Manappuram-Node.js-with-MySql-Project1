@@ -519,6 +519,7 @@ const common = {
                     });
                 }
 
+                console.log(result);
                 res.json(result);
             })
         } catch (error) {
