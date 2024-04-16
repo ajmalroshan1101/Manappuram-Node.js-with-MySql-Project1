@@ -10,7 +10,6 @@ const common = {
                 console.error("Error executing query: ", error);
                 return;
             }
-            // console.log('Query results: ', results);
             res.json(results);
         });
     },
@@ -27,7 +26,6 @@ const common = {
     searchdate: (req, res) => {
         const { date1, date2 } = req.body;
 
-        console.log(date1, date2);
 
         const sqlQuery = `SELECT tbl_customer.cust_name,tbl_customer.cust_date,tbl_customer_details.cust_bill_address1,tbl_customer_details.cust_bill_address2,tbl_customer_details.cust_bill_pin_code,tbl_customer_details.cust_gstin,tbl_customer_details.cust_pan,tbl_customer_details.cust_phone, tbl_customer_details.cust_state FROM tbl_customer 
         LEFT JOIN tbl_customer_details ON tbl_customer_details.customer_id = tbl_customer.cust_id 
@@ -58,7 +56,6 @@ const common = {
             //     otherResult: otherResult,
             // };
             // });
-            console.log(result);
             res.status(200).json(result);
         });
     },
@@ -88,7 +85,6 @@ const common = {
     finduser: (req, res) => {
         const { username, password } = req.body;
 
-        // console.log(username, password);
 
         function generateMD5(password) {
             return crypto.createHash("md5").update(password).digest("hex");
@@ -119,16 +115,12 @@ const common = {
                 });
             }
 
-            // console.log('hello');
-            // console.log(result);
-
             return res.json({ success: true, data: result });
         });
     },
     searchstockbybranch: (req, res) => {
         try {
             const branchName = req.body.data;
-            console.log(branchName);
 
             mySql = `SELECT * 
             FROM tbl_stock 
@@ -146,7 +138,6 @@ const common = {
                     });
                 }
 
-                console.log(result);
 
                 res.json(result);
             });
@@ -168,7 +159,6 @@ const common = {
         try {
             const branchName = req.body.brn;
             const departmentName = req.body.dep;
-            console.log(departmentName);
 
             const mySql = `SELECT * FROM tbl_new_stock_transfer
             LEFT JOIN tbl_production_type ON tbl_production_type.production_type_id  = tbl_new_stock_transfer.new_department_id
@@ -186,14 +176,12 @@ const common = {
                     });
                 }
 
-                // console.log(result);
                 res.json(result);
             });
         } catch (error) {}
     },
     listingSubDepartment: (req, res) => {
         try {
-            console.log(req.body);
             const dep = req.body.data;
 
             if (dep === "HAND MADE") {
@@ -245,7 +233,6 @@ const common = {
             
             WHERE hm_department.hm_department_name = ?`
 
-            console.log(data);
 
             connection.query(mySql, [data], (err, result) => {
                 if (err) {
@@ -257,7 +244,6 @@ const common = {
                     });
                 }
 
-                console.log(result);
                 res.json(result)
 
             })
@@ -270,7 +256,6 @@ const common = {
         try {
 
             const { FROM, TO } = req.body;
-            console.log(FROM, TO);
 
             mySql = `SELECT tbl_branch.branch_name AS branch,
             tbl_order_creation.order_no AS order_number,
@@ -300,7 +285,6 @@ const common = {
                         message: "Database error occurred",
                     });
                 }
-                console.log(result);
                 res.json(result)
             })
         } catch (error) {
@@ -308,7 +292,6 @@ const common = {
         }
     },
     dateANDbranchWise: (req, res) => {
-        console.log(req.body);
         try {
 
             const { branch } = req.body;
@@ -352,8 +335,6 @@ const common = {
     },
     // this is currently working rest of the function are useless 
     dateANDbranchANDdepartment: (req, res) => {
-        console.log('hello world ajmal');
-        console.log(req.body);
         try {
 
 
@@ -361,7 +342,6 @@ const common = {
 
             if (department === 'HAND MADE') {
 
-                console.log('inside');
                 mySqlhand = ` SELECT 
                 tbl_branch.branch_name AS branch,
                 hm_department_live_status.hm_metal_weight AS weight_1,
@@ -387,7 +367,6 @@ const common = {
                             message: "Database error occurred",
                         });
                     }
-                    console.log(result)
                     res.json({ dep: 'hand', result });
                 })
 
@@ -418,7 +397,6 @@ const common = {
                             message: "Database error occurred",
                         });
                     }
-                    console.log(result)
                     res.json({ dep: 'cast', result });
                 })
 
@@ -488,6 +466,64 @@ const common = {
     },
     demo: (req, res) => {
         res.json('backend is runnig');
+    },
+    salereport: (req, res) => {
+
+        try {
+
+            const { from, to, branch } = req.body
+
+            const mySql = `
+            SELECT 
+            
+            tbl_billing.invoice_no AS bill_no,
+            tbl_billing.billing_date AS trans_date,
+            tbl_customer.cust_name AS party_name,
+            tbl_billing.total_gross_wt AS gr_wt,
+            tbl_billing.total_stone_wt AS cls_wt,
+            tbl_billing.total_net_wt AS net_wt,
+            tbl_billing.total_metal_cost AS mtl_amt,
+            tbl_billing.hm_rate AS gold_rate,
+            tbl_billing_item_details.item_purity AS karat,
+            tbl_billing.hm_cgst AS cgst_amt,
+            tbl_billing.hm_sgst AS sgst_amt,
+            tbl_billing.hm_igst AS igst_amt,
+            tbl_billing.hm_tcs AS tcs_amt,
+            tbl_billing.grand_total AS final_amount,
+            tbl_branch.branch_name AS branch,
+            tbl_states.state_name AS state ,
+            tbl_product_subcategory.subcategory_name AS sub_category,
+            tbl_billing_item_details.item_varient_name AS product_style,
+            tbl_product_category.category_name AS category,
+            tbl_billing.mobilizer_code AS mobilizer
+            
+            FROM tbl_billing
+            LEFT JOIN tbl_billing_item_details ON tbl_billing_item_details.billing_id = tbl_billing.billing_id
+            LEFT JOIN tbl_customer ON tbl_customer.cust_id =tbl_billing.bill_vendor_id
+            LEFT JOIN tbl_branch ON tbl_branch.branch_id = tbl_billing.branch_id
+            LEFT JOIN tbl_style ON tbl_style.style_id = tbl_billing_item_details.style_id
+            LEFT JOIN tbl_product_type ON tbl_product_type.product_id = tbl_style.product_type
+            LEFT JOIN tbl_product_category ON tbl_product_category.category_id = tbl_style.product_category_id
+            LEFT JOIN tbl_product_subcategory ON tbl_product_subcategory.subcategory_id = tbl_style.product_subcategory_id
+            LEFT JOIN tbl_states ON tbl_states.id = tbl_branch.state_id
+            
+            WHERE tbl_billing.billing_date BETWEEN ? AND ? AND tbl_branch.branch_name = ? AND tbl_billing.billing_status = 3 
+            `
+            connection.query(mySql, [from, to, branch], (err, result) => {
+
+                if (err) {
+                    console.log("Error:", error);
+                    return res.json({
+                        success: false,
+                        message: "Database error occurred",
+                    });
+                }
+
+                res.json(result);
+            })
+        } catch (error) {
+
+        }
     }
 };
 
