@@ -7,7 +7,7 @@ const connection = sql.createPool({
     // host: 'localhost',
     // user: 'root',
     // password: '',
-    // database: 'testss'
+    // database: 'test'
 
     host: 'database-1.cnqsccui2i3c.eu-north-1.rds.amazonaws.com',
     user: 'admin',

@@ -2,6 +2,7 @@ const { log, error } = require("console");
 const connection = require("../utility/sqldb");
 
 const crypto = require("crypto");
+const { loadavg } = require("os");
 
 const common = {
     showVendor: (req, res) => {
@@ -347,7 +348,6 @@ const common = {
 
             const { branch, department } = req.body;
 
-            console.log(department);
             if (department === 'HAND MADE') {
 
                 mySqlhand = ` SELECT 
@@ -623,7 +623,157 @@ const common = {
         } catch (error) {
 
         }
+    },
+    employeestock: (req, res) => {
+        // console.log(req.body);
+
+        const branch = req.body.branch
+        const mySql = `SELECT 
+
+        tbl_karat.karat AS purity,
+        tbl_metal_assign_to_employee.assigned_metal_weight AS weight
+        FROM
+        tbl_metal_assign_to_employee
+        
+        LEFT JOIN tbl_branch ON tbl_branch.branch_id = tbl_metal_assign_to_employee.branch_id
+        LEFT JOIN tbl_karat ON tbl_karat.karat_id = tbl_metal_assign_to_employee.purity_id
+        
+        WHERE tbl_branch.branch_name = ?`
+
+        connection.query(mySql, [branch], (err, result) => {
+            if (err) {
+                console.log("Error:", error);
+                return res.json({
+                    success: false,
+                    message: "Database error occurred",
+                });
+            }
+            res.json(result);
+        })
+    },
+    departmentstock: (req, res) => {
+        // console.log(req.body);
+
+        const branch = req.body.branch
+        const mySql = `SELECT 
+
+        tbl_karat.karat AS purity,
+        tbl_metal_assign_to_department.assigned_metal_weight AS weight
+        FROM
+        tbl_metal_assign_to_department
+        
+        LEFT JOIN tbl_branch ON tbl_branch.branch_id = tbl_metal_assign_to_department.branch_id
+        LEFT JOIN tbl_karat ON tbl_karat.karat_id = tbl_metal_assign_to_department.purity_id
+        
+        WHERE tbl_branch.branch_name = ?`
+
+        connection.query(mySql, [branch], (err, result) => {
+            if (err) {
+                console.log("Error:", error);
+                return res.json({
+                    success: false,
+                    message: "Database error occurred",
+                });
+            }
+            res.json(result);
+        })
+    },
+    barcodingstock: (req, res) => {
+        // console.log(req.body);
+
+        const branch = req.body.branch
+        const mySql = `SELECT 
+        tbl_hm_barcoding.purity AS purity,
+        tbl_hm_barcoding.assigned_weight AS weight
+        FROM tbl_hm_barcoding
+        LEFT JOIN tbl_branch ON tbl_branch.branch_id = tbl_hm_barcoding.branch_id
+        
+        WHERE tbl_branch.branch_name = ?`
+
+        connection.query(mySql, [branch], (err, result) => {
+            if (err) {
+                console.log("Error:", error);
+                return res.json({
+                    success: false,
+                    message: "Database error occurred",
+                });
+            }
+            res.json(result);
+        })
+    },
+    castingtemp: (req, res) => {
+        // console.log(req.body);
+
+        const branch = req.body.branch
+        const mySql = `SELECT
+        tbl_karat.karat AS purity,
+        tbl_temp_casting_gold_stock.temp_gold_stock_weight AS weight
+        FROM 
+        tbl_temp_casting_gold_stock
+        LEFT JOIN tbl_branch ON tbl_branch.branch_id = tbl_temp_casting_gold_stock.branch_id
+        LEFT JOIN tbl_karat ON tbl_karat.karat_id = tbl_temp_casting_gold_stock.purity_id
+        LEFT JOIN tbl_metal_type ON tbl_metal_type.type_id = tbl_temp_casting_gold_stock.metal_type_id
+        
+        WHERE tbl_branch.branch_name = ? AND tbl_metal_type.type_id = 1`
+
+        connection.query(mySql, [branch], (err, result) => {
+            if (err) {
+                console.log("Error:", error);
+                return res.json({
+                    success: false,
+                    message: "Database error occurred",
+                });
+            }
+            res.json(result);
+        })
+    },
+    KOLKATA: (req, res) => {
+
+        const branch = req.body.branch
+        console.log(branch);
+
+        const mysql = `SELECT 
+        tbl_karat.karat AS purity,
+        hm_department_live_status.hm_metal_weight AS weight
+        FROM hm_department_live_status 
+        LEFT JOIN tbl_branch ON tbl_branch.branch_id = hm_department_live_status.branch_id
+        LEFT JOIN tbl_karat ON tbl_karat.karat_id = hm_department_live_status.purity_id
+        
+        WHERE  tbl_branch.branch_name =?`
+
+        connection.query(mysql, [branch], (err, result) => {
+
+            if (err) {
+                console.log("Error:", error);
+                return res.json({
+                    success: false,
+                    message: "Database error occurred",
+                });
+            }
+            res.json(result);
+        })
+    },
+    LUCKNOW: (req, res) => {
+
+        const mySql = `SELECT 
+        tbl_karat.karat AS purity,
+        SUM(tbl_hm_gcd.gross_weight) AS weight
+    FROM tbl_hm_gcd 
+    LEFT JOIN tbl_karat ON tbl_karat.karat_id = tbl_hm_gcd.purity
+    `
+        connection.query(mySql, (err, result) => {
+            if (err) {
+                console.log("Error:", error);
+                return res.json({
+                    success: false,
+                    message: "Database error occurred",
+                });
+            }
+            res.json(result);
+        })
     }
+
+
 };
 
 module.exports = common;

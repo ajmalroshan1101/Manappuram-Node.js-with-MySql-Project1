@@ -2,7 +2,7 @@ const express = require('express')
 
 const commonRouter = express.Router();
 
-const { showVendor, showcustomer, searchdate, searchoder1, finduser, searchstockbybranch, branchdetails, searchstochbydepartment, listingSubDepartment, subsubepartment, searchstockbydepartment, departmentStockDate, dateANDbranchWise, dateANDbranchANDdepartment, employeweight, demo, salereport, finishedgoods, showbranch } = require('../controller/commonController');
+const { showVendor, showcustomer, searchdate, searchoder1, finduser, searchstockbybranch, branchdetails, searchstochbydepartment, listingSubDepartment, subsubepartment, searchstockbydepartment, departmentStockDate, dateANDbranchWise, dateANDbranchANDdepartment, employeweight, demo, salereport, finishedgoods, showbranch, employeestock, departmentstock, barcodingstock, castingtemp, KOLKATA, LUCKNOW } = require('../controller/commonController');
 
 commonRouter.get('/showvendor', showVendor);
 
@@ -44,6 +44,19 @@ commonRouter.post('/dateandbranchanddepartment', dateANDbranchANDdepartment);
 commonRouter.post('/salereport', salereport);
 
 commonRouter.post('/finishedgoods', finishedgoods);
+
+commonRouter.post('/employeestock', employeestock);
+
+commonRouter.post('/departmentstock', departmentstock);
+
+commonRouter.post('/barcodingstock', barcodingstock);
+
+commonRouter.post('/castingtemp', castingtemp);
+
+commonRouter.post('/KOLKATA', KOLKATA);
+
+commonRouter.post('/LUCKNOW', LUCKNOW);
+
 
 
 
