@@ -94,13 +94,19 @@ const common = {
 
         // console.log(md5Hash);/
 
-        const mySql = `SELECT *
-        FROM tbl_login
-        LEFT JOIN tbl_employee ON tbl_employee.emp_code = tbl_login.emp_code
-        LEFT JOIN tbl_department ON tbl_department.department_id = tbl_login.department_type
-        LEFT JOIN tbl_branch ON tbl_branch.branch_id = tbl_login.branch_id
-        LEFT JOIN tbl_role ON tbl_role.role_id = tbl_login.emp_role
-        WHERE tbl_login.emp_code = ? AND tbl_login.password = ?`;
+        const mySql = `SELECT 
+        tbl_employee.emp_name ,
+        tbl_branch.branch_name,
+        tbl_login.branch_id,
+        tbl_role.role_name,
+        tbl_department.department_name,
+        tbl_employee.emp_code
+                FROM tbl_login
+                LEFT JOIN tbl_employee ON tbl_employee.emp_code = tbl_login.emp_code
+                LEFT JOIN tbl_department ON tbl_department.department_id = tbl_login.department_type
+                LEFT JOIN tbl_branch ON tbl_branch.branch_id = tbl_login.branch_id
+                LEFT JOIN tbl_role ON tbl_role.role_id = tbl_login.emp_role
+                WHERE tbl_login.emp_code = ? AND tbl_login.password = ?`;
 
         connection.query(mySql, [username, md5Hash], (error, result) => {
             if (error) {
@@ -115,6 +121,7 @@ const common = {
                 });
             }
 
+            console.log(result);
             return res.json({ success: true, data: result });
         });
     },
@@ -144,7 +151,7 @@ const common = {
         } catch (error) {}
     },
     branchdetails: (req, res) => {
-        mySql = `SELECT * FROM tbl_branch LIMIT 2`;
+        mySql = `SELECT branch_name FROM tbl_branch `;
 
         connection.query(mySql, (err, result) => {
             if (err) {
@@ -340,6 +347,7 @@ const common = {
 
             const { branch, department } = req.body;
 
+            console.log(department);
             if (department === 'HAND MADE') {
 
                 mySqlhand = ` SELECT 
@@ -400,6 +408,32 @@ const common = {
                     res.json({ dep: 'cast', result });
                 })
 
+            } else if (department === 'GCD') {
+
+                const gcdsql = `SELECT 
+
+                tbl_hm_gcd.barcode,
+                tbl_hm_gcd.item_name,
+                tbl_hm_gcd.gross_weight,
+                tbl_karat.karat
+                
+                FROM tbl_hm_gcd
+                LEFT JOIN tbl_branch ON tbl_branch.branch_id = tbl_hm_gcd.branch_id
+                LEFT JOIN tbl_karat ON tbl_karat.karat_id = tbl_hm_gcd.purity
+                
+                WHERE tbl_branch.branch_name = ? `
+
+                connection.query(gcdsql, [branch], (err, result) => {
+                    if (err) {
+                        console.log("Error:", error);
+                        return res.json({
+                            success: false,
+                            message: "Database error occurred",
+                        });
+                    }
+
+                    res.json({ dep: 'gcd', result });
+                })
             }
 
             //     mySql = `SELECT tbl_branch.branch_name AS branch,
@@ -442,8 +476,9 @@ const common = {
 
     //Here is another importent table
     employeweight: (req, res) => {
+
+        const { branch } = req.body;
         const mySql = `SELECT 
-        tbl_branch.branch_name AS branch,
         tbl_hm_worker.team_name AS employe_name,
         tbl_karat.karat AS purity,
         tbl_metal_assign_to_employee.assigned_metal_weight AS assigned_weight
@@ -451,9 +486,11 @@ const common = {
         FROM tbl_metal_assign_to_employee
         LEFT JOIN tbl_hm_worker ON tbl_hm_worker.hm_worker_id = tbl_metal_assign_to_employee.employee_id
         LEFT JOIN tbl_karat ON tbl_karat.karat_id = tbl_metal_assign_to_employee.purity_id
-        LEFT JOIN tbl_branch ON tbl_branch.branch_id = tbl_metal_assign_to_employee.branch_id`
+        LEFT JOIN tbl_branch ON tbl_branch.branch_id = tbl_metal_assign_to_employee.branch_id
 
-        connection.query(mySql, (err, result) => {
+        WHERE  tbl_branch.branch_name = ?`
+
+        connection.query(mySql, [branch], (err, result) => {
             if (err) {
                 console.log("Error:", error);
                 return res.json({
@@ -484,7 +521,6 @@ const common = {
             tbl_billing.total_net_wt AS net_wt,
             tbl_billing.total_metal_cost AS mtl_amt,
             tbl_billing.hm_rate AS gold_rate,
-            tbl_billing_item_details.item_purity AS karat,
             tbl_billing.hm_cgst AS cgst_amt,
             tbl_billing.hm_sgst AS sgst_amt,
             tbl_billing.hm_igst AS igst_amt,
@@ -492,9 +528,6 @@ const common = {
             tbl_billing.grand_total AS final_amount,
             tbl_branch.branch_name AS branch,
             tbl_states.state_name AS state ,
-            tbl_product_subcategory.subcategory_name AS sub_category,
-            tbl_billing_item_details.item_varient_name AS product_style,
-            tbl_product_category.category_name AS category,
             tbl_billing.mobilizer_code AS mobilizer
             
             FROM tbl_billing
@@ -519,8 +552,73 @@ const common = {
                     });
                 }
 
-                console.log(result);
+                // console.log(result);
                 res.json(result);
+            })
+        } catch (error) {
+
+        }
+    },
+    finishedgoods: (req, res) => {
+        console.log(req.body);
+
+        try {
+
+            const branch = req.body.branch
+            console.log(branch);
+
+            const mysql = `SELECT 
+            tbl_hm_gcd.gross_weight 
+            FROM tbl_hm_gcd
+            
+            LEFT JOIN tbl_branch ON tbl_branch.branch_id = tbl_hm_gcd.branch_id
+            
+            WHERE tbl_branch.branch_name = ?`
+
+            connection.query(mysql, [branch], (err, result) => {
+                if (err) {
+                    console.log("Error:", error);
+                    return res.json({
+                        success: false,
+                        message: "Database error occurred",
+                    });
+                }
+                const gcd = result.map(row => row.gross_weight);
+
+                // console.log(gcd); // Log the extracted branch names
+
+                res.json(gcd);
+            })
+        } catch (error) {
+
+        }
+    },
+    showbranch: (req, res) => {
+        try {
+
+            const mySql = `SELECT 
+            branch_name AS branch
+            FROM tbl_branch  `
+
+            connection.query(mySql, (err, result) => {
+
+                if (err) {
+                    console.log("Error:", error);
+                    return res.json({
+                        success: false,
+                        message: "Database error occurred",
+                    });
+                }
+
+                // console.log(result);
+
+                // res.json(result)
+                // Extract only the branch names
+                const branches = result.map(row => row.branch);
+
+                // console.log(branches); // Log the extracted branch names
+
+                res.json(branches);
             })
         } catch (error) {
 
