@@ -9,10 +9,19 @@ const connection = sql.createPool({
     // password: '',
     // database: 'test'
 
-    host: 'database-1.cnqsccui2i3c.eu-north-1.rds.amazonaws.com',
+    // host: 'database-1.cnqsccui2i3c.eu-north-1.rds.amazonaws.com',
+    // user: 'admin',
+    // password: 'DkcSg3ZGtvd6GUmR7lCm',
+    // database: 'demo',
+
+
+    // port: parseInt(port, 10)
+
+    host: 'database-1.cd2ia2mk2bmm.ap-south-1.rds.amazonaws.com',
     user: 'admin',
-    password: 'DkcSg3ZGtvd6GUmR7lCm',
+    password: 'AkYCEcZ3G9Tz',
     database: 'demo',
+
 
     port: parseInt(port, 10)
 
